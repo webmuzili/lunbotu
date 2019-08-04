@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .outside{
+            width: 500px;
+            height:300px;
+            margin:50px auto;
+            position:relative;
+            overflow: hidden;
+        }
+        .outside ul{
+            height: 300px;
+            list-style: none;
+            position:absolute;
+            top:0;
+            left:0;
+        }
+        .outside ul li{
+            width:500px;
+            height:100%;
+            float: left;
+        }
+        .outside ul li img{
+            height:100%;
+            width:100%;
+        }
+
+        .outside ol {
+            /* width: 50px; */
+            height: 20px;
+            list-style: none;
+            position: absolute;
+            bottom:10px;
+            left:50%;
+            transform: translateX(-50%);
+            float: left;
+        }
+        .outside ol li{
+            display: inline-block;
+            margin-left:6px;
+            width: 10px;
+            height:10px;
+            border-radius: 50%;
+            background-color: rgb(179, 159, 159);
+        }
+        .cricle{
+            background-color: skyblue !important;
+        }
+        .zuo,.you{
+            width: 30px;
+            height: 30px;
+            background-color:rgba(139, 151, 151, 0.3);
+            position:absolute;
+            top:50%;
+            transform: translateY(-50%);
+            border-radius: 10%;
+            transition: all 0.5s;
+        }
+        .zuo{
+            left:-30px;
+        }
+        .you{
+            right:-30px;
+        }
+        .zuo img,.you img{
+            width: 100%;
+            height:100%;
+        }
+    </style>
+    <script src="js/jquery.js"></script>
+    <script src="js/animate.js"></script>
+</head>
+<body>
+    <div class="outside">
+       <ul>
+           <li><a href="javascript:;"><img src="img/1.jpg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/2.jpeg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/3.jpg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/4.jpeg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/5.jpg" alt=""></a></li>
+       </ul>
+       <div class="zuo"><img src="img/zuo.png" alt=""></div>
+       <div class="you"><img src="img/you.png" alt=""></div>
+        <ol>
+        </ol>
+    </div>
+    <script>
+        
+        $(function(){
+            for(var i=0;i<$("ul li").length;i++){
+                //根据图片的个数动态创建小圆点
+                var li=$("<li></li>")
+                $("ol").append(li)
+            }
+            $("ol li").eq(0).addClass("cricle")
+            //设置默认的小圆点
+
+            $(".outside").on("mouseenter",function(){
+                $(".zuo").css("left",0)
+                $(".you").css("right",0)
+                clearInterval(timer)
+                timer=null
+            })
+            $(".outside").on("mouseleave",function(){
+                $(".zuo").css("left","-30px")
+                $(".you").css("right","-30px")
+                timer=setInterval(function(){
+                $('.you').click()
+                },2000)
+            })
+
+            $("ol li").on("click",function(){
+                anit($("ul")[0],-$(this).index()*$('.outside').width())
+
+                $(this).addClass('cricle').siblings().removeClass('cricle')
+                num=$(this).index()
+                quan=$(this).index()
+                // $('ol').find('.cricle').removeClass('cricle')
+                // $("ol li").eq($(this).index()).addClass('cricle')
+            })
+
+            $('ul').append($('ul li:first-child').clone(true)[0])
+
+            $("ul").css("width",$("ul li").length*100+"%")
+            //动态的根据图片的长度设置ul的宽度
+            var num=0
+            var quan=0
+            var flag=true
+            $('.you').on('click',function(){
+                if(flag){
+                    flag=false
+                    if(num==$('ul li').length-1){
+                    num=0
+                    $('ul').css('left',0)
+                    }
+                    num++
+                    anit($("ul")[0],-num*$('.outside').width(),function(){
+                        flag=true
+                    })
+
+                     quan++
+                    if(quan>$('ol li').length-1){
+                    quan=0
+                    }
+                    $('ol').find('.cricle').removeClass('cricle')
+                    $('ol li').eq(quan).addClass('cricle')
+                }
+            })
+            $('.zuo').on('click',function(){
+                if(flag){
+                    flag=false
+                    if(num==0){
+                    num=$('ul li').length-1
+                    $('ul').css('left',-num*$('.outside').width())
+                    }
+                    num--
+                    anit($("ul")[0],-num*$('.outside').width(),function(){
+                        flag=true
+                    })
+
+                    quan--
+                    if(quan<0){
+                    quan=$('ol li').length-1
+                    }
+                    $('ol').find('.cricle').removeClass('cricle')
+                    $('ol li').eq(quan).addClass('cricle')
+                }
+            })  
+        
+            var timer=setInterval(function(){
+                $('.you').click()
+            },2000)
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .outside{
+            width: 500px;
+            height:300px;
+            /* background-color:purple; */
+            margin:50px auto;
+            position:relative;
+            overflow: hidden;
+        }
+        .outside ul{
+            height: 300px;
+            list-style: none;
+            position:absolute;
+            top:0;
+            left:0;
+        }
+        .outside ul li{
+            float: left;
+        }
+        .outside ul li img{
+            width: 500px;
+            height: 300px;
+        }
+        .outside ol {
+            /* width: 50px; */
+            height: 20px;
+            /* background-color: pink; */
+            list-style: none;
+            position: absolute;
+            bottom:10px;
+            left:50%;
+            transform: translateX(-50%);
+            float: left;
+        }
+        .outside ol li{
+            display: inline-block;
+            margin-left:6px;
+            width: 10px;
+            height:10px;
+            border-radius: 50%;
+            background-color: rgb(179, 159, 159);
+        }
+        .cricle{
+            background-color: skyblue !important;
+        }
+        .zuo,.you{
+            width: 30px;
+            height: 30px;
+            background-color:rgba(139, 151, 151, 0.3);
+            position:absolute;
+            top:50%;
+            transform: translateY(-50%);
+            border-radius: 10%;
+            transition: all 0.5s;
+        }
+        .zuo{
+            left:-30px;
+        }
+        .you{
+            right:-30px;
+        }
+        .zuo img,.you img{
+            width: 100%;
+            height:100%;
+        }
+    </style>
+    <script src="animate.js"></script>
+</head>
+<body>
+    <div class="outside">
+       <ul>
+           <li><a href="javascript:;"><img src="img/1.jpg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/2.jpeg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/3.jpg" alt=""></a></li>
+           <li><a href="javascript:;"><img src="img/4.jpeg" alt=""></a></li>
+       </ul>
+       <div class="zuo"><img src="img/zuo.png" alt=""></div>
+       <div class="you"><img src="img/you.png" alt=""></div>
+        <ol>
+        </ol>
+    </div>
+    <script>
+        /*
+        *获取基本的元素变量
+        */
+        var outside=document.querySelector('.outside')
+        // 获取外部容器盒子
+        var zuo=document.querySelector('.zuo')
+        // 获取左边的按钮
+        var you=document.querySelector('.you')
+        // 获取右边的按钮
+        var ul=document.querySelector('ul')
+        // 获取整个可移动ul的长度
+        var percent=(ul.children.length+1)*100
+        ul.style.width=percent+'%'
+        //根据图片元素的多少设置ul的长度
+        var ol=document.querySelector('ol')
+        //获取底部小圆点的容器
+        var stepWidth=outside.offsetWidth
+        //获取整个ul移动的单位，为最外层容器的宽度
+
+        /*
+        *添加鼠标经过和离开事件
+        */
+        outside.addEventListener('mouseenter',function(){
+            //增加鼠标经过事件，显示两边的箭头
+            zuo.style.left="0px"
+            you.style.right='0px'
+            clearInterval(timer)
+            //清除定时器
+            timer=null
+            //释放内存
+        })
+        outside.addEventListener('mouseleave',function(){
+            //增加鼠标离开的事件，隐藏两边的箭头
+            zuo.style.left="-30px"
+            you.style.right='-30px' 
+            timer=setInterval(function(){
+            //重新启动定时器，并且不需要重新申明变量
+                 you.click()
+        },4000)
+        })
+
+        /*
+        *创建底部小圆点以及事件的绑定
+        */
+        for(var i=0;i<ul.children.length;i++){
+            //根据ul图片元素的多少，来添加相应小圆点的个数
+            var li=document.createElement('li')
+            li.setAttribute('index',i)
+            //为小圆点设置自定义属性
+            ol.appendChild(li) 
+            //将元素添加到ol下
+            li.addEventListener('click',function(){
+                //为每一个li添加点击事件
+                for(var i=0;i<ol.children.length;i++){
+                    ol.children[i].className="";
+                    //排他思想，先取消其他的样式
+                }
+                this.className='cricle'
+                //改变其选中的状态
+
+                var index=this.getAttribute('index')
+                //设置当前点击对象的属性
+
+                num =index
+                //让点击小圆圈偏移量与点击箭头一致
+                quan=index
+                //让点击小圆圈偏移量与箭头改变小圆圈的状态一致
+                anit(ul,-stepWidth*index)
+                //调用动画函数，根据绑定的自定义属性，来设置移动的位置
+            })
+        }
+
+        ol.children[0].className='cricle'
+        //设置当前默认的小圆点
+
+        /*
+        *用深克隆，克隆出ul第一个元素
+        */
+        var first=ul.children[0].cloneNode(true)
+        //克隆ul中的第一个元素，并且添加到ul
+        ul.appendChild(first)
+
+        /*
+        *设置左右箭头点击无缝滑动
+        */
+        var num=0
+        //申明num变量是用来控制，点击事件发生时，ul的偏移量
+        var quan=0
+        //申明quan变零是用来控制，点击事件发生时时，底部小圆圈被激活的状态
+
+        var flag=true
+        //节流阀设置，避免连续点击，图片切换过快
+        you.addEventListener('click',function(){
+            //增加点击事件
+        if(flag){
+                flag=false
+                if(num==ul.children.length-1){
+                //当移动到克隆的图片时
+                ul.style.left='0'
+                //让其瞬间移动到第一张图片的位置
+                num=0
+                //并让其num初始化，归零
+            }
+            num++
+            //点击依次增加一次数量
+            anit(ul,-stepWidth*num,function(){
+                flag=true
+            })
+            //移动制定数量的偏移量
+            
+            quan++
+            //控制小圆圈的状态的量
+            if(quan==ol.children.length){
+                //当小圆圈被选中的状态，达到ol子元素的数量时
+                quan=0
+                //初始化
+            }
+            for(var i=0;i<ol.children.length;i++){
+                ol.children[i].className=""
+                //排他思想清除其他的样式
+            }
+            ol.children[quan].className='cricle'
+            //设置当前的样式
+            }
+        })
+        zuo.addEventListener('click',function(){
+            //左边的点击事件
+        if(flag){
+               flag=false
+               if(num==0){
+                //当左边的偏移量为零时
+                num=ul.children.length-1
+                //num变成最后一个
+                ul.style.left=-num*stepWidth+'px'
+                //偏移到最后一张图片的位置 最后一定要加px
+            }
+            num--
+            anit(ul,-stepWidth*num,function(){
+                flag=true
+            })
+            //偏移到指定的位置
+            quan--
+            if(quan<0){
+                quan=ol.children.length-1
+                //移动到最后小圆点的位置
+            }
+            for(var i=0;i<ol.children.length;i++){
+                ol.children[i].className=""
+            }
+            ol.children[quan].className='cricle'
+           }
+        })
+
+        /*
+        *添加自动轮播功能 
+        */
+       var timer=setInterval(function(){
+           //增加定时器
+           you.click()
+           //添加手动事件
+       },4000) 
+    </script>
+</body>
+</html>

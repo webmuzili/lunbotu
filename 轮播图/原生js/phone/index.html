@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+        }
+        html { font-size: calc(100vw / 3.75) }
+        .out{
+            position:relative;
+            overflow: hidden;
+        }
+        .out ul{
+            height:100%;
+            list-style: none;
+            margin-left:-100%;
+        }
+        .out ul li{
+            height:100%;
+            float:left;
+            overflow: hidden;
+        }
+        .out ul li img{
+            width:100%;
+        }
+        ol{
+            height: 0.2rem;
+            list-style: none;
+            position: absolute;
+            right:0.09rem;
+            bottom: 1.0rem;
+        }
+        ol li{
+            display: inline-block;
+            margin-right:0.05rem;
+            width: 0.06rem;
+            height: 0.06rem;
+            background-color: skyblue;
+            border-radius: 50%;
+            transition:all 0.3s;
+        }
+        .current{
+            width:0.2rem !important;
+            border-radius: 20% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="out">
+        <ul>
+            <li><img src="img/5.jpg" alt=""></li>
+            <li><img src="img/1.jpg" alt=""></li>
+            <li><img src="img/2.jpg" alt=""></li>
+            <li><img src="img/3.jpg" alt=""></li>
+            <li><img src="img/4.jpg" alt=""></li>
+            <li><img src="img/5.jpg" alt=""></li>
+            <li><img src="img/1.jpg" alt=""></li>
+        </ul>
+        <ol>
+        </ol>
+    </div>
+    <script>
+        /*
+        *获取各个dom元素
+        */
+        var out=document.querySelector('.out')
+        //获取最外层元素
+        var ul=document.querySelector('ul')
+        //获取移动的ul
+        var ol=document.querySelector('ol')
+        //获取最下面的小点
+
+        /*
+        *动态的设置轮播图的宽高
+        */
+        ul.style.width=ul.children.length*100+'%'
+        //获取ul元素的个数，设置动态的设置ul的宽度
+        var widthS=100/ul.children.length 
+        for(var i=0;i<ul.children.length;i++){
+            ul.children[i].style.width=widthS+'%'
+            //动态根据ul中li的个数的设置每个li的宽度
+        }
+        var heightS=(document.body.clientWidth*(9/18))*0.01
+        //动态的设置轮播图的高度，且比例是18:9
+        out.style.height=heightS+'rem'
+        //单位设置为动态的rem
+        
+        /*
+        *动态的设置轮播提小点
+        */
+        for(var i=0;i<ul.children.length-2;i++){
+            var li =document.createElement('li')
+            ol.appendChild(li)
+            //动态创建li
+        }
+        ol.children[0].className='current'
+        //默认第一个小圆点选中
+        
+        /*
+        *自动切换轮播图
+        */
+        var index=0
+        //申明增加的变量
+        var step=out.offsetWidth
+        //申明每一次移动的单位
+
+        function skip(num,trans){
+            //封装移动的函数
+            var translateX=-num*step
+            ul.style.transition=trans
+            //移动的过程中增加过渡
+            ul.style.transform='translateX('+translateX+'px)'
+        }
+        var timer=setInterval(function(){
+            //增加定时器
+            index++
+            skip(index,'all 0.5s')
+            //调用移动的函数
+        },2000)
+        ul.addEventListener('transitionend',function(){
+            //增加过渡结束事件
+            if(index>=ul.children.length-2){
+                //当index增加到最后一张 把index归零
+                index=0
+                skip(index,'none')
+                //移动ul
+            }else if(index<0){
+                //当index小于零时，把图片移动到倒数第二张
+                index=ul.children.length-3
+                skip(index,'none')
+                //启动移动函数
+            }
+            ol.querySelector('.current').classList.remove('current')
+            //利用h5中classlist,启动排他功能
+            ol.children[index].classList.add('current')
+            //根据当前index设置，小圆点被选中的状态
+        })
+
+        /*
+        *设置滑动移动或者回弹ul
+        */
+        var now=0
+        //申明当前手指的位置的量
+        var queen=0
+        //申明手指移动了多少的量
+        var flag=false
+        //申明变量控制，如果手指没有移动则不去判断回弹和位置量
+        out.addEventListener("touchstart",function(e){
+            //启用手指触摸事件
+            now=e.touches[0].pageX
+            //给当前的量赋值
+            clearInterval(timer)
+            //清除定时器，手指触摸关闭定时器
+        })
+        out.addEventListener("touchmove",function(e){
+            //启动手指移动事件
+            queen=e.touches[0].pageX-now
+            //让当前手指的位置减去初始的位置，即为移动的量
+            var translateX=-index*step+queen
+            //让当前ul的位置加上移动的量即可移动ul
+            ul.style.transition='none'
+            //不加过渡
+            ul.style.transform='translateX('+translateX+'px)'
+            flag=true
+            e.preventDefault()
+            //阻止默认的事件
+        })
+        out.addEventListener("touchend",function(){
+            //启动手指离开屏幕的事件
+            if(flag){
+                //若为false则不执行下面的程序，增加程序的性能
+                if(Math.abs(queen)>step*0.2){
+                    //如果移动的距离大于屏幕的20%,则移动的下一个位置
+                    if(queen>0){
+                        //如果移动的量大于零，则index减一
+                        index--
+                    }else{
+                        index++
+                        //若移动的量大于零，则index加一
+                    }
+                    skip(index,'all 0.5s')
+                }else{
+                //如果移动的距离小于屏幕的20%，则退回到原来的位置，原来的位置不变
+                skip(index,'all 0.5s') 
+                }
+            }
+            clearInterval(timer)
+            timer=setInterval(function(){
+                //手指离开屏幕重新启动定时器
+            index++
+            skip(index,'all 0.5s')
+            },2000)
+        })
+    </script>
+</body>
+</html>

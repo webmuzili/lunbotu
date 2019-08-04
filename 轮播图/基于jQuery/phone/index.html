@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+        }
+        html { font-size: calc(100vw / 3.75) }
+        .out{
+            position:relative;
+            overflow: hidden;
+        }
+        .out ul{
+            height:100%;
+            list-style: none;
+            margin-left:-100%;
+        }
+        .out ul li{
+            height:100%;
+            float:left;
+            overflow: hidden;
+        }
+        .out ul li img{
+            width:100%;
+        }
+        ol{
+            height: 0.2rem;
+            list-style: none;
+            position: absolute;
+            right:0.09rem;
+            bottom: 1.0rem;
+        }
+        ol li{
+            display: inline-block;
+            margin-right:0.05rem;
+            width: 0.06rem;
+            height: 0.06rem;
+            background-color: skyblue;
+            border-radius: 50%;
+            transition:all 0.3s;
+        }
+        .current{
+            width:0.2rem !important;
+            border-radius: 20% !important;
+        }
+    </style>
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+    <div class="out">
+        <ul>
+            <li><img src="img/5.jpg" alt=""></li>
+            <li><img src="img/1.jpg" alt=""></li>
+            <li><img src="img/2.jpg" alt=""></li>
+            <li><img src="img/3.jpg" alt=""></li>
+            <li><img src="img/4.jpg" alt=""></li>
+            <li><img src="img/5.jpg" alt=""></li>
+            <li><img src="img/1.jpg" alt=""></li>
+        </ul>
+        <ol>
+        </ol>
+    </div>
+    <script>
+        $(function(){
+            $('.out').css('height',(document.body.clientWidth*(9/18))*0.01+'rem')
+            $('ul').css('width',$('ul li').length*100+'%')
+            $('ul li').css('width',100/$('ul li').length+'%')
+
+            for(var i=0;i<$('ul li').length-2;i++){
+                var li =$('<li></li>')
+                $('ol').append(li)
+            }
+            $('ol li').eq(0).addClass('current')
+
+            var index=0
+            var step=$(".out").width()
+            function skip(num,trans){
+                var translateX=-num*step;
+                $('ul').css({
+                    "transition":trans,
+                    "transform":'translateX('+translateX+'px)'
+                })
+            }
+
+            var timer=setInterval(function(){
+                index++;
+                skip(index,'all 0.5s')
+            },2000)
+            $('ul').on('transitionend',function(){
+                if( index>$('ul li').length-3){
+                    index=0
+                    skip(index,'none')
+                }else if(index<0){
+                    index=$('ul li').length-3
+                    skip(index,'none')
+                }
+                $('ol').find('.current').removeClass('current')
+                $("ol li").eq(index).addClass('current')
+            })
+
+            var now=0
+            var quan=0
+            var flag=false
+            $(".out").on("touchstart",function(e){
+                now=e.touches[0].pageX
+                clearInterval(timer)
+            })
+            $(".out").on("touchmove",function(e){
+                quan=e.touches[0].pageX-now
+                var translateX=-index*step+quan;
+                $('ul').css({
+                    "transition":'none',
+                    "transform":'translateX('+translateX+'px)'
+                })
+                flag=true
+                e.preventDefault()
+            })
+            $(".out").on("touchend",function(){
+               if(flag){
+                if(Math.abs(quan)>step*0.2){
+                    if(quan>0){
+                        index--
+                    }else{
+                        index++
+                    }
+                    skip(index,'all 0.5s')
+                }else{
+                    skip(index,'all 0.5s')
+                }
+               }
+                clearInterval(timer)
+                timer=setInterval(function(){
+                index++;
+                skip(index,'all 0.5s')
+                },2000)  
+            })
+        })
+    </script>
+</body>
+</html>
